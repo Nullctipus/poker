@@ -8,6 +8,11 @@
         "xmemory": "c",
         "xstring": "c",
         "xtr1common": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "stdio.h": "c",
+        "winsock2.h": "c",
+        "ws2tcpip.h": "c",
+        "windows.h": "c",
+        "vector": "c"
     }
 }
