@@ -4,9 +4,16 @@ else
 	RMDIR = rm -rf build
 endif
 
-.PHONY: all generate build clean
+.PHONY: generate build clean
 
 all: generate build
+
+server:
+	[ -d build ] || mkdir build
+	cd build && cmake .. -DSERVER=1
+	@echo "Building..."
+	cd build && cmake --build .
+	@echo "Done!"
 
 web:
 	@echo "Generating Build Files..."
