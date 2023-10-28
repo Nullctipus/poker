@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #ifdef SERVER_BUILD
+#include "server/server.h"
 #include "websockets/serverWebsocket.h"
 #else
 #include "core_basic_window.h"
@@ -8,10 +9,12 @@
 int main(int argc, char const *argv[]) {
 #ifdef SERVER_BUILD
   int port = DEFAULT_PORT;
-  if(argc >= 2)
+  if (argc >= 2)
     port = atoi(argv[1]);
-  
+
   websocketInitialize();
+  InitServer();
+  registerCallback(&ProcessIncoming);
   websocketStart(port);
   websocketCleanup();
 #else

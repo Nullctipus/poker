@@ -1,23 +1,47 @@
 #ifndef SERVER_BUILD
 #include <stdio.h>
+#include "clientWebsocket.h"
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include "clientWebsocket.h"
 #include <windows.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif
 
-WSADATA wsadata;
+#define WEBSOCKET_BUFF_LEN 2048
+#define NAME_LEN 64
 
-int websocketInitialize() {
-  int ret;
-  if ((ret = WSAStartup(MAKEWORD(2, 2), &wsadata)) != 0) {
+char *recbuff = NULL;
+SOCKET serverSocket = INVALID_SOCKET;
+SOCKET clientSocket = INVALID_SOCKET;
+
+struct sockaddr_in servAddr;
+struct sockaddr_in clientAddr;
+socklen_t clientAddrLen;
+
+// for select()
+fd_set activeFdSet;
+fd_set readFdSet;
+
+int websocketInitialize()
+{
+  int ret = 0;
+#ifdef _WIN32
+  WSADATA wsadata;
+  if ((ret = WSAStartup(MAKEWORD(2, 2), &wsadata)) != 0)
+  {
     fprintf(stderr, "WSAStartup failed with error %d\n", WSAGetLastError());
     return ret;
   }
   printf("Winsock found!\n"
          "Current status is: %s.\n",
          wsadata.szSystemStatus);
-  if (LOBYTE(wsadata.wVersion) != 2 || HIBYTE(wsadata.wVersion) != 2) {
+  if (LOBYTE(wsadata.wVersion) != 2 || HIBYTE(wsadata.wVersion) != 2)
+  {
     printf("This app doesn't support %u.%u!", LOBYTE(wsadata.wVersion),
            HIBYTE(wsadata.wVersion));
     websocketCleanup();
@@ -28,15 +52,47 @@ int websocketInitialize() {
 
   printf("The highest version this dll can support: %u.%u\n",
          LOBYTE(wsadata.wHighVersion), HIBYTE(wsadata.wHighVersion));
+  setvbuf(stdout, NULL, _IONBF, 0);
+#endif
+  recbuff = malloc(WEBSOCKET_BUFF_LEN * sizeof(char));
   return ret;
 }
-int websocketCleanup() {
-  int ret;
-  if ((ret = WSACleanup()) == SOCKET_ERROR) {
-    fprintf(stderr, "WSACleanup failed with error %d\n", WSAGetLastError());
-  }
-  return ret;
+int websocketCleanup()
+{
+    int ret = 0;
+#ifdef _WIN32
+    if ((ret = WSACleanup()) == SOCKET_ERROR)
+    {
+        fprintf(stderr, "WSACleanup failed with error %d\n", WSAGetLastError());
+    }
+#endif
+    free(recbuff);
+    return ret;
 }
 
+int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action, int critical)
+{
+    const char *actionAttempted = action;
+    if (returnValue != SOCKET_ERROR)
+        return 0;
+
+    printf("socket error. %s failed with error: %d\n", actionAttempted, WSAGetLastError());
+    close_socket(socketToClose);
+    if (!critical)
+        return 1;
+    #if _WIN32
+    WSACleanup();
+    #endif
+    exit(1);
+}
+void close_socket(int fd)
+{
+#ifndef _WIN32
+    shutdown(fd, SHUT_RDWR);
+    close(fd);
+#else
+    closesocket(fd);
 #endif
+}
+
 #endif

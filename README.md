@@ -1,4 +1,5 @@
 # Poker clone in C
+ace-to-five high, draw poker
 
 ### Desktop
 
