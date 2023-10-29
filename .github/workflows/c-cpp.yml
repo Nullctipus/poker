@@ -12,7 +12,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - uses: mymindstorm/setup-emsdk@v11
+      with:
+        version: 1.39.18
+        actions-cache-folder: 'emsdk-cache'
     - uses: actions/checkout@v3
+    - name: Verify
+      run: emcc -v
     - name: make
       run: make
     - name: upload build
