@@ -18,5 +18,16 @@ jobs:
     - name: upload build
       uses: actions/upload-artifact@v3
       with:
-        name: Poker.exe
+        name: Poker
         path: build\Release\Poker.exe
+    - name: upload sever
+      uses: actions/upload-artifact@v3
+      with:
+        name: PokerServer
+        path: buildServer\Release\PokerServer.exe
+    - name: upload web
+      uses: actions/upload-artifact@v3
+      with:
+        name: PokerWeb
+        path: buildWeb\Release
+      

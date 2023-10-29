@@ -1,33 +1,31 @@
 ifeq ($(OS),Windows_NT)
-	RMDIR = cmd /b /c rmdir /s /q build
+	RMDIR = cmd /b /c rmdir /s /q build buildweb buildserver
 else
-	RMDIR = rm -rf build
+	RMDIR = rm -rf build buildweb buildserver
 endif
 
-.PHONY: generate build clean
+.PHONY: all
 
-all: generate build
+all: desktop server web
 
 server:
-	[ -d build ] || mkdir build
-	cd build && cmake .. -DSERVER=1
+	[ -d buildServer ] || mkdir buildServer
+	cd buildServer && cmake .. -DSERVER=1 -DCMAKE_BUILD_TYPE=Release
 	@echo "Building..."
-	cd build && cmake --build .
+	cd buildServer && cmake --build . --config Release
 	@echo "Done!"
 
 web:
 	@echo "Generating Build Files..."
-	[ -d build ] || mkdir build
-	cd build && emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-s USE_GLFW=3" -DCMAKE_EXECUTABLE_SUFFIX=".html"
+	[ -d buildWeb ] || mkdir buildWeb
+	cd buildWeb && emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-s USE_GLFW=3" -DCMAKE_EXECUTABLE_SUFFIX=".html"
 	@echo "Building..."
-	cd build && emmake make
+	cd buildWeb && emmake make
 
-generate:
+desktop:
 	@echo "Generating Build Files..."
 	[ -d build ] || mkdir build
 	cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
-
-build:
 	@echo "Building..."
 	cd build && cmake --build . --config Release
 	@echo "Done!"

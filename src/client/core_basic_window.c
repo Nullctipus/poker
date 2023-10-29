@@ -1,4 +1,3 @@
-#ifndef SERVER_BUILD
 /*******************************************************************************************
  *
  *   raylib [core] example - Basic window (adapted for HTML5 platform)
@@ -82,4 +81,3 @@ void UpdateDrawFrame(void) {
   EndDrawing();
   //----------------------------------------------------------------------------------
 }
-#endif

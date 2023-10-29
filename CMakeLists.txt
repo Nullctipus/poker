@@ -4,7 +4,9 @@ project(Poker)
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-file(GLOB_RECURSE SOURCES "src/*.c")
+file(GLOB_RECURSE COMMON_SOURCES "src/common/*.c")
+file(GLOB_RECURSE CLIENT_SOURCES "src/client/*.c")
+file(GLOB_RECURSE SERVER_SOURCES "src/server/*.c")
 if(NOT DEFINED SERVER)
   # Dependencies
   set(RAYLIB_VERSION 4.5.0)
@@ -27,14 +29,21 @@ if(NOT DEFINED SERVER)
 endif()
 # Our Project
 
-add_executable(${PROJECT_NAME} ${SOURCES})
 #set(raylib_VERBOSE 1)
 
 if(DEFINED SERVER)
+  add_executable(${PROJECT_NAME}Server ${COMMON_SOURCES} ${SERVER_SOURCES})
   add_compile_definitions(SERVER_BUILD)
   set(PLATFORM "Desktop")
+  if(WIN32)
+    target_link_libraries(${PROJECT_NAME}Server WS2_32)
+  endif()
 else()
+  add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${CLIENT_SOURCES})
   target_link_libraries(${PROJECT_NAME} raylib)
+  if(WIN32)
+    target_link_libraries(${PROJECT_NAME} WS2_32)
+  endif()
 endif()
 
 # Web Configurations
@@ -44,9 +53,6 @@ if (${PLATFORM} STREQUAL "Web")
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
 endif()
 
-if(WIN32)
-  target_link_libraries(${PROJECT_NAME} WS2_32)
-endif()
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework IOKit")

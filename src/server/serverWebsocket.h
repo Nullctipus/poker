@@ -1,4 +1,3 @@
-#ifdef SERVER_BUILD
 #ifndef NULL_SERVER_WEBSOCKET
 #define NULL_SERVER_WEBSOCKET
 
@@ -12,5 +11,4 @@ int websocketCleanup();
 
 void websocketStart(int port);
 
-#endif
 #endif

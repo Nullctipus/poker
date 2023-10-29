@@ -1,4 +1,3 @@
-#ifdef SERVER_BUILD
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -9,7 +8,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
-#include "../vector/vector.h"
+#include "../common/vector/vector.h"
 #include "serverWebsocket.h"
 #include <stdio.h>
 #include <string.h>
@@ -28,7 +27,7 @@ socklen_t clientAddrLen;
 fd_set activeFdSet;
 fd_set readFdSet;
 
-void close_socket(int fd);
+void close_socket(SOCKET fd);
 
 int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
                      int critical);
@@ -231,7 +230,7 @@ int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
 #endif
   exit(1);
 }
-void close_socket(int fd) {
+void close_socket(SOCKET fd) {
 #ifndef _WIN32
   shutdown(fd, SHUT_RDWR);
   close(fd);
@@ -239,5 +238,3 @@ void close_socket(int fd) {
   closesocket(fd);
 #endif
 }
-
-#endif

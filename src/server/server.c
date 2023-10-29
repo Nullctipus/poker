@@ -1,15 +1,14 @@
-#ifdef SERVER_BUILD
 #include "server.h"
-#include "../poker/card.h"
-#include "../poker/deck.h"
-#include "../poker/hands.h"
-#include "../vector/vector.h"
-#include "game.h"
-#include "player.h"
+#include "../common/game.h"
+#include "../common/player.h"
+#include "../common/poker/card.h"
+#include "../common/poker/deck.h"
+#include "../common/poker/hands.h"
+#include "../common/vector/vector.h"
 #include <stdio.h>
 #include <string.h>
 
-#include "../websockets/serverWebsocket.h"
+#include "serverWebsocket.h"
 
 Vector Games;
 void InitServer() { Games = Vector_Create(sizeof(Game)); }
@@ -17,25 +16,24 @@ void CreateNewGame(char *game) {
   Game r;
   memset(&r, 0, sizeof(r));
   strncpy_s(r.code, 8, game, 8);
+  r.deck = create_deck();
   Vector_PushBack(&Games, &r);
 }
-Game *GetGame(char *game) {
-  Game *currGame = NULL;
+int GetGame(char *game) {
+  int currGame = -1;
   for (int i = 0; i < Games.length; i++) {
     if (strcmp(((Game *)Vector_At(&Games, i))->code, game) == 0) {
-      currGame = ((Game *)Vector_At(&Games, i));
+      currGame = i;
     }
   }
-  if (currGame == NULL) {
+  if (currGame == -1) {
     CreateNewGame(game);
-    currGame = (Game *)Vector_At(&Games, Games.length - 1);
+    currGame = Games.length - 1;
   }
   return currGame;
 }
 int HasPlayer(Game *game, unsigned long long player) {
-  printf("%p", game);
   for (int i = 0; i < game->playerCount; i++) {
-    printf("%d ", i);
     if (player == game->players[i].id)
       return 1;
   }
@@ -51,11 +49,9 @@ Player *GetPlayer(Game *game, unsigned long long player) {
 char buff[2048];
 void ProcessIncoming(unsigned long long socket, char *game, char *type,
                      char *value) {
-  printf("0\n");
-  Game *currGame = GetGame(game);
-  printf("1\n");
+  int gameIndex = GetGame(game);
+  Game *currGame = (Game *)Vector_At(&Games, gameIndex);
   if (!HasPlayer(currGame, socket)) {
-    printf("2\n");
     if (type != NULL && strcmp("join", type) == 0 && value != NULL &&
         currGame->playerCount < MAX_PLAYERS) {
 
@@ -78,9 +74,17 @@ void ProcessIncoming(unsigned long long socket, char *game, char *type,
       sendAll(buff, socket);
       return;
     } else {
+      if (currGame->playerCount == 0) {
+        free(currGame->deck);
+        Vector_RemoveAt(&Games, gameIndex, 0);
+      }
       sendSingle(socket, "full");
       return;
     }
   }
+
+  // Set Bet
+  // Request Hand
+  // Show Hand
+  // Replace Hand
 }
-#endif
