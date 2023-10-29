@@ -20,7 +20,7 @@ jobs:
       with:
         name: Poker
         path: build\Release\Poker.exe
-    - name: upload sever
+    - name: upload server
       uses: actions/upload-artifact@v3
       with:
         name: PokerServer
