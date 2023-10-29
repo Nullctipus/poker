@@ -21,6 +21,8 @@ web:
 	cd buildWeb && emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-s USE_GLFW=3" -DCMAKE_EXECUTABLE_SUFFIX=".html"
 	@echo "Building..."
 	cd buildWeb && emmake make
+	cp buildWeb/Poker.wasm "nginx docker/html"
+	cp buildWeb/Poker.js "nginx docker/html"
 
 desktop:
 	@echo "Generating Build Files..."
@@ -29,6 +31,7 @@ desktop:
 	@echo "Building..."
 	cd build && cmake --build . --config Release
 	@echo "Done!"
+
 debug:
 	[ -d build ] || mkdir build
 	cd build && cmake ..

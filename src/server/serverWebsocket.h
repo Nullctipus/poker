@@ -1,5 +1,4 @@
-#ifndef NULL_SERVER_WEBSOCKET
-#define NULL_SERVER_WEBSOCKET
+#pragma once
 
 #define DEFAULT_PORT 27015
 void sendAll(char *data, unsigned long long exclude);
@@ -10,5 +9,3 @@ int websocketInitialize();
 int websocketCleanup();
 
 void websocketStart(int port);
-
-#endif

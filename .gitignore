@@ -1,3 +1,5 @@
 build/
 buildServer/
 buildWeb/
+nginx docker/html/Poker.js
+nginx docker/html/Poker.wasm

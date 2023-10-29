@@ -3,5 +3,6 @@
 
 int websocketInitialize();
 int websocketCleanup();
+int websocketConnect(char* address, int port);
 
 #endif

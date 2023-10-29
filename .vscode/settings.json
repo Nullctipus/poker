@@ -13,6 +13,10 @@
         "winsock2.h": "c",
         "ws2tcpip.h": "c",
         "windows.h": "c",
-        "vector": "c"
+        "vector": "c",
+        "core_basic_window.h": "c",
+        "pokerconfig.h": "c",
+        "draggable.h": "c",
+        "raylib.h": "c"
     }
 }

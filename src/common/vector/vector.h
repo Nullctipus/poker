@@ -1,5 +1,4 @@
-#ifndef NULLVECTOR_H
-#define NULLVECTOR_H
+#pragma once
 
 #include <stdlib.h>
 typedef struct Vector {
@@ -78,5 +77,3 @@ void Vector_Clear(Vector *vector);
 * @param element Element to insert
 */
 void Vector_Insert(Vector *vector, unsigned long long index, void *element);
-
-#endif

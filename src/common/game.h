@@ -1,5 +1,4 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
 #include "player.h"
 #include "poker/deck.h"
@@ -13,4 +12,3 @@ typedef struct game_struct {
   Deck *deck;
 } Game;
 
-#endif

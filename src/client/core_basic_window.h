@@ -1,4 +1,3 @@
-#ifndef COREWINDOW_H
-#define COREWINDOW_H
+#pragma once
 int createWindow();
-#endif
+

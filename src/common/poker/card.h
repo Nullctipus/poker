@@ -1,5 +1,4 @@
-#ifndef CARD_H
-#define CARD_H
+#pragma once
 
 enum Suit {
   Diamonds = 0,
@@ -13,4 +12,3 @@ typedef struct card_struct {
 } Card;
 
 Card create_card(enum Suit suit, int card);
-#endif

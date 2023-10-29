@@ -82,7 +82,7 @@ void ProcessIncoming(unsigned long long socket, char *game, char *type,
       return;
     }
   }
-
+  // Disconnect
   // Set Bet
   // Request Hand
   // Show Hand

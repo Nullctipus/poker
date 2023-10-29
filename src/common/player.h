@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #define NAME_LEN 64
 #include "poker/card.h"
@@ -12,4 +11,3 @@ typedef struct player_struct {
   Card cards[HAND_SIZE];
 } Player;
 
-#endif

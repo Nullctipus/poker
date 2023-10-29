@@ -65,6 +65,10 @@ int websocketCleanup() {
   free(recbuff);
   return ret;
 }
+int websocketConnect(char* address, int port){
+  *(volatile char*)0 = 0; // Trap
+  return 0;
+}
 
 int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
                      int critical) {

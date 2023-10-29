@@ -1,5 +1,4 @@
-#ifndef DECK_H
-#define DECK_H
+#pragma once
 
 #include "card.h"
 
@@ -13,5 +12,3 @@ typedef struct deck_struct {
 Deck *create_deck();
 
 void remove_from_deck(Deck *deck, int index);
-
-#endif

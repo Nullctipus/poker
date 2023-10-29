@@ -1,6 +1,4 @@
-#ifndef HANDS_H
-#define HANDS_H
-
+#pragma once
 #include "card.h"
 #define HAND_SIZE 5
 enum hand_type {
@@ -30,4 +28,3 @@ Hand create_hand(Card *cards);
 const char *type_string(enum hand_type type);
 int hand_compare(Hand *left, Hand *right);
 
-#endif
