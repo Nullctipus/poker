@@ -31,10 +31,16 @@ void close_socket(SOCKET fd);
 
 int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
                      int critical);
-void (*callbackFunction)(unsigned long long, char *, char *, char *);
-void registerCallback(void (*callback)(unsigned long long, char *, char *,
+
+void (*callbackFunction)(unsigned long long, char *, char *);
+void registerCallback(void (*callback)(unsigned long long, char *,
                                        char *)) {
   callbackFunction = callback;
+}
+
+void (*disconnectCallback)(unsigned long long);
+void registerDisconnect(void (*callback)(unsigned long long)){
+  disconnectCallback = callback;
 }
 int websocketInitialize() {
   int ret = 0;
@@ -141,15 +147,14 @@ void clientDisconnect(SOCKET currSocket, int index) {
   sprintf(recbuff, "USERLEFT;%llu\n", currSocket);
   sendAll(recbuff, -1);
 }
-void dataReceived(SOCKET currSocket, int index, char *game, char *type,
-                  char *value) {
+void dataReceived(SOCKET currSocket, int index, char *type, char *value) {
   int iRes;
-  if (strcmp(game, "ping") == 0) {
+  if (strcmp(type, "ping") == 0) {
     iRes = send(currSocket, "pong\n", 5, 0);
     socketErrorCheck(iRes, currSocket, "send", 0);
     return;
   }
-  callbackFunction(currSocket, game, type, value);
+  callbackFunction(currSocket, type, value);
 }
 void websocketStart(int port) {
 
@@ -198,19 +203,15 @@ void websocketStart(int port) {
 
     recbuff[strcspn(recbuff, "\r\n")] = 0; // remove trailing new line
     printf("received data: %s\n", recbuff);
-    char *game, *type, *value = NULL;
-    game = recbuff;
-    type = strchr(game, ';');
-    if (NULL != type) {
-      *type = 0;
-      type++;
-      value = strchr(type, ';');
-      if (NULL != value) {
-        *value = 0;
-        value++;
-      }
+    char *type, *value;
+    type = recbuff;
+    value = strchr(type, ';');
+    if (NULL != value) {
+      *value = 0;
+      value++;
     }
-    dataReceived(currSocket, i, game, type, value);
+    
+    dataReceived(currSocket, i, type, value);
   }
 }
 
@@ -223,8 +224,12 @@ int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
   printf("socket error. %s failed with error: %d\n", actionAttempted,
          WSAGetLastError());
   close_socket(socketToClose);
+
   if (!critical)
+  {
+    disconnectCallback(socketToClose);
     return 1;
+  }
 #if _WIN32
   WSACleanup();
 #endif

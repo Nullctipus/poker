@@ -11,6 +11,7 @@ Button *create_Button(Rectangle rect, Rectangle *parent, char *text)
     ret->parent = parent;
     ret->rect = rect;
     ret->text = text;
+    ret->textOffset = (rect.width-MeasureText(text,BUTTON_TEXT_SIZE))/2;
     ret->hovered = 0;
     return ret;
 }
@@ -45,6 +46,6 @@ void draw_Button(Button *button)
 #if BUTTON_BORDER != 0
     DrawRectangleLinesEx(scaled, BUTTON_BORDER, (button->hovered ? BUTTON_BACKGROUND_BORDER_HOVER : BUTTON_BACKGROUND_BORDER));
 #endif
-    DrawText(button->text,scale* (button->rect.x + BUTTON_MARGIN_LEFT), scale * (button->rect.y + BUTTON_MARGIN_TOP), -1, BUTTON_TEXT);
+    DrawText(button->text,scale* (button->rect.x + button->textOffset), scale * (button->rect.y + BUTTON_MARGIN_TOP), scale * BUTTON_TEXT_SIZE, BUTTON_TEXT);
 }
 #pragma warning(pop)

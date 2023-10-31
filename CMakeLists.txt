@@ -9,7 +9,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Creates C resources file from files in given directory
 function(create_resources dir output)
     # Create empty output file
-    file(WRITE ${output} "#pragma once\n")
+    
+    string(REGEX MATCH "([^/]+)$" header ${output})
+    file(WRITE ${output}.h "#ifndef EMBED_RESOURCES_H\n#define EMBED_RESOURCES_H\n\n")
+    file(WRITE ${output}.c "#include \"""${header}.h""\""\n)
     # Collect input files
     file(GLOB bins ${dir}/*)
     # Iterate through input files
@@ -23,8 +26,10 @@ function(create_resources dir output)
         # Convert hex data for C compatibility
         string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
         # Append data to output file
-        file(APPEND ${output} "const unsigned char ${filename}[] = {${filedata}0x00,};\nconst unsigned ${filename}_size = sizeof(${filename});\n")
+        file(APPEND ${output}.h "extern const unsigned char ${filename}[];\nextern const unsigned ${filename}_size;\n")
+        file(APPEND ${output}.c "const unsigned char ${filename}[] = {${filedata}0x00,};\nconst unsigned ${filename}_size = sizeof(${filename});\n")
     endforeach()
+    file(APPEND ${output}.h "#endif\n")
 endfunction()
 
 if(NOT DEFINED SERVER)
@@ -46,7 +51,7 @@ if(NOT DEFINED SERVER)
       add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
     endif()
   endif()
-  create_resources("resources/" "src/client/resources.h")
+  create_resources("resources/" "src/client/resources")
 endif()
 # Our Project
 

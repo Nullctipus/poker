@@ -17,6 +17,7 @@ typedef struct textbox_struct
     Rectangle textRect;
     int draggable;
     char title[TEXT_BOX_TITLE_LENGTH+1];
+    int titleOffset;
     char* text;
     int textMaxLength;
     int textLength;

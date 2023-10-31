@@ -38,6 +38,9 @@ TextBox *create_TextBox(Rectangle backgroundRect, char *title, char *text, int t
     ret->textRect.x = 10;
     ret->textRect.y = 30;
 
+    int textWidth = MeasureText(title,TITLE_SIZE);
+    ret->titleOffset = (backgroundRect.width-textWidth)/2;
+
     if(draggable)
         memset(&ret->drag,0,sizeof(ret->drag));
 
@@ -57,7 +60,7 @@ enum textbox_button update_TextBox(TextBox *textBox)
     if(textBox == NULL) return NONE;
 
     textBox->hovering = CheckCollisionPointRec(GetMousePosition(),Scaled(textBox->textRect));
-    if(textBox->hovering){
+    if(textBox->hovering && (!textBox->draggable || !textBox->drag.dragging)){
         SetMouseCursor(MOUSE_CURSOR_IBEAM);
         int key = GetCharPressed();
         while(key > 0)
@@ -98,8 +101,8 @@ void draw_TextBox(TextBox *textBox)
     if(TEXTBOX_BORDER_WIDTH)
         DrawRectangleLinesEx(Scaled(textBox->textRect),TEXTBOX_BORDER_WIDTH*scale,(textBox->hovering ? TEXTBOX_TEXT_BORDER_HOVER : TEXTBOX_TEXT_BORDER));
         
-    DrawText(textBox->text,(textBox->backgroundRect.x+15)*scale,(textBox->backgroundRect.y+40)*scale,TEXTBOX_TEXT_SIZE*scale,TEXTBOX_TEXT);
-    DrawText(textBox->title,(textBox->backgroundRect.x+10)*scale,(textBox->backgroundRect.y+10)*scale,TEXTBOX_TITLE_SIZE*scale,TEXTBOX_TEXT);
+    DrawText(textBox->text,(textBox->backgroundRect.x+15)*scale,(textBox->backgroundRect.y+40)*scale,TEXT_SIZE*scale,TEXTBOX_TEXT);
+    DrawText(textBox->title,(textBox->backgroundRect.x+textBox->titleOffset)*scale,(textBox->backgroundRect.y+10)*scale,TITLE_SIZE*scale,TEXTBOX_TEXT);
 
     draw_Button(textBox->submit);
     draw_Button(textBox->cancel);

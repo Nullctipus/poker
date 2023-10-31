@@ -10,6 +10,7 @@ void update_Draggable(Draggable* draggable, Rectangle *toDrag){
     int shouldDrag = CheckCollisionPointRec(mousepos, *toDrag) && IsMouseButtonDown(MOUSE_BUTTON_LEFT);
     if(draggable->dragging)
         shouldDrag = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+        
     if(draggable->dragging && !shouldDrag ){
         draggable->dragging = 0;
         draggable->offsetX = 0;

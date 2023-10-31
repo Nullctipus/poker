@@ -8,6 +8,7 @@ int main(int argc, char const *argv[]) {
 
   websocketInitialize();
   InitServer();
+  registerDisconnect(&ProcessDisconnect);
   registerCallback(&ProcessIncoming);
   websocketStart(port);
   websocketCleanup();

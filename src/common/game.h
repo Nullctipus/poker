@@ -5,7 +5,6 @@
 #define MAX_PLAYERS 8
 
 typedef struct game_struct {
-  char code[8];
   Player players[MAX_PLAYERS];
   int playerCount;
   int dealer;

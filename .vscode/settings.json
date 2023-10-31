@@ -17,6 +17,7 @@
         "core_basic_window.h": "c",
         "pokerconfig.h": "c",
         "draggable.h": "c",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "atomic": "c"
     }
 }

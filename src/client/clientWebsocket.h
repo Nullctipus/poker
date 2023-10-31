@@ -3,6 +3,8 @@
 
 int websocketInitialize();
 int websocketCleanup();
-int websocketConnect(char* address, int port);
+int websocketConnect(char* address, char* port);
+void websocketSend(char* data);
+void registerDataReceived(void (*callback)(char*,char*));
 
 #endif
