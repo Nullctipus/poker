@@ -18,6 +18,27 @@
         "pokerconfig.h": "c",
         "draggable.h": "c",
         "raylib.h": "c",
-        "atomic": "c"
+        "atomic": "c",
+        "ranges": "c",
+        "span": "c",
+        "socket.h": "c",
+        "pthread.h": "c",
+        "string.h": "c",
+        "netdb.h": "c",
+        "chrono": "c",
+        "functional": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "typeindex": "c",
+        "typeinfo": "c",
+        "*.tcc": "c",
+        "charconv": "c",
+        "optional": "c",
+        "format": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "any": "c",
+        "variant": "c"
     }
 }

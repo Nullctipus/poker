@@ -4,6 +4,7 @@
 #include "../common/vector/queue.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -13,8 +14,20 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <pthread.h>
 #include <time.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/select.h>
+#include <unistd.h>
+
+typedef unsigned long long SOCKET;
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+
 #endif
 
 #define WEBSOCKET_BUFF_LEN 2048
@@ -112,7 +125,7 @@ void websocketSend(char *data)
 #if _WIN32
 DWORD WINAPI
 #else
-void
+void*
 #endif
 sendLoop(void *data)
 {
@@ -146,7 +159,7 @@ sendLoop(void *data)
 #if _WIN32
 DWORD WINAPI
 #else
-void
+void*
 #endif
 receiveLoop(void *data)
 {
@@ -165,6 +178,7 @@ receiveLoop(void *data)
       *value = 0;
       value++;
     }
+    dataReceived(type,value);
   }
 
   close_socket(serverSocket);
@@ -249,9 +263,10 @@ int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
   const char *actionAttempted = action;
   if (returnValue != SOCKET_ERROR)
     return 0;
-
+#ifdef _WIN32
   printf("socket error. %s failed with error: %d\n", actionAttempted,
          WSAGetLastError());
+#endif
   close_socket(socketToClose);
   if (critical)
     InitializeConnection();

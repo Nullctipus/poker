@@ -79,8 +79,12 @@ endif()
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB=1)
+    target_link_libraries(${PROJECT_NAME} websocket.js)
     # Tell Emscripten to build an example.html file.
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+
+else()
+    add_compile_definitions(__STDC_WANT_LIB_EXT1__)
 endif()
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)

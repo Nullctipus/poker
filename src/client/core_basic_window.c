@@ -24,6 +24,8 @@
 #include "clientWebsocket.h"
 #include <stdio.h>
 #include <string.h>
+#include "client.h"
+#include "renderer.h"
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -41,9 +43,10 @@
 int screenWidth = DEFAULT_WINDOW_WIDTH;
 int screenHeight = DEFAULT_WINDOW_HEIGHT;
 
+int connecting = 1;
 char buff[2048] = "localhost";
 char *port = NULL;
-TextBox *textBox;
+TextBox *textBox = NULL;
 
 Texture2D texture;
 
@@ -61,6 +64,8 @@ int createWindow()
   //--------------------------------------------------------------------------------------
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(screenWidth, screenHeight, WINDOW_TITLE);
+  StartClient();
+  StartRenderer();
 
   InitializeConnection();
 
@@ -91,12 +96,17 @@ int createWindow()
 }
 void InitializeConnection()
 {
+  if (textBox != NULL)
+    destroy_TextBox(&textBox);
+
+  connecting = 1;
   port = NULL;
   Rectangle r;
   r.width = 500;
   r.height = 300;
   r.x = DEFAULT_WINDOW_WIDTH / 2 - r.width / 2;
   r.y = DEFAULT_WINDOW_HEIGHT / 2 - r.height / 2;
+  strcpy(buff, "localhost");
   textBox = create_TextBox(r, "Host", buff, 32, 1);
 }
 void UpdateScale()
@@ -120,25 +130,48 @@ void UpdateDrawFrame(void)
 
   UpdateScale();
   enum textbox_button res = update_TextBox(textBox);
-  if (res == SUBMIT)
+  if (connecting)
   {
-    if (port == NULL)
+    if (res == SUBMIT)
     {
-      port = &buff[strlen(buff) + 1];
-      strcpy(port, "27015");
-      Rectangle r = textBox->backgroundRect;
-      destroy_TextBox(&textBox);
-      textBox = create_TextBox(r, "Port", port, 6, 1);
-    }
-    else
-    {
+      if (port == NULL)
+      {
+        port = &buff[strlen(buff) + 1];
+#ifndef PLATFORM_WEB
+        strcpy(port, "27015");
+#else
+        strcpy(port, "27017");
+#endif
+        Rectangle r = textBox->backgroundRect;
         destroy_TextBox(&textBox);
+        textBox = create_TextBox(r, "Port", port, 6, 1);
+      }
+      else
+      {
         websocketConnect(buff, port);
+        strcpy(buff, "join;");
+        port = buff + 5;
+        connecting = 0;
+        Rectangle r = textBox->backgroundRect;
+        destroy_TextBox(&textBox);
+        textBox = create_TextBox(r, "Display Name", port, 64, 1);
+      }
+    }
+    else if (res == CANCEL && port != NULL)
+    {
+      InitializeConnection();
     }
   }
-  else if (res == CANCEL && port != NULL)
+  else if (textBox != NULL)
   {
-    InitializeConnection();
+    if (res == SUBMIT)
+    {
+      websocketSend(buff);
+    }
+  }
+  else
+  {
+    UpdateRender();
   }
 
   //----------------------------------------------------------------------------------
@@ -161,8 +194,10 @@ void UpdateDrawFrame(void)
     {
       DrawTextureEx(GetCardTexture(suit, card), (Vector2){card * scale * tmp.width, suit * scale * tmp.height}, 0, scale, WHITE);
     }
-
-  draw_TextBox(textBox);
+  if (textBox != NULL)
+    draw_TextBox(textBox);
+  else
+    DrawRender();
   DrawFPS(10, 10);
   EndDrawing();
   //----------------------------------------------------------------------------------

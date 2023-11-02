@@ -10,70 +10,62 @@
 
 #include "serverWebsocket.h"
 
+void InitServer()
+{
+  create_game();
+}
 
-void InitServer() { }
-
-int HasPlayer(Game *game, unsigned long long player) {
-  for (int i = 0; i < game->playerCount; i++) {
-    if (player == game->players[i].id)
-      return 1;
-  }
-  return 0;
-}
-Player *GetPlayer(Game *game, unsigned long long player) {
-  for (int i = 0; i < game->playerCount; i++) {
-    if (player == game->players[i].id)
-      return game->players + i;
-  }
-  return NULL;
-}
-Game game = {0};
-Game GetGame(){
-  if(game.playerCount == 0){
-    if(game.deck != NULL)
-      free(game.deck);
-    game.deck = create_deck();
-  }
-  return game;
-}
 char buff[2048];
 
 void ProcessDisconnect(unsigned long long socket)
 {
-  Game currGame = GetGame();
-  if(!HasPlayer(&currGame,socket)) return;
-  sprintf(buff,"leave;%llu",socket);
+  GetGame();
+  if (!HasPlayer(socket))
+    return;
 
-  sendAll(buff,socket);
+  sprintf(buff, "leave;%llu\n", socket);
+
+  sendAll(buff, socket);
 }
+
+void HandleJoin(Game *game, unsigned long long socket, char *value)
+{
+  sprintf(buff, "join;%llu\n", socket);
+  sendSingle(socket, buff);
+  sprintf(
+      buff,
+      "players;%d,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu\n",
+      game->Players.length, GetPlayerAt(0)->name,
+      GetPlayerAt(0)->id, GetPlayerAt(1)->name,
+      GetPlayerAt(1)->id, GetPlayerAt(2)->name,
+      GetPlayerAt(2)->id, GetPlayerAt(3)->name,
+      GetPlayerAt(3)->id, GetPlayerAt(4)->name,
+      GetPlayerAt(4)->id, GetPlayerAt(5)->name,
+      GetPlayerAt(5)->id, GetPlayerAt(6)->name,
+      GetPlayerAt(6)->id);
+  buff[2047] = '\0';
+  sendSingle(socket, buff);
+  Player *newPlayer = AddPlayer(socket, value);
+  sprintf(buff, "joined;%s,%llu\n", newPlayer->name, socket);
+  buff[2047] = '\0';
+  sendAll(buff, socket);
+}
+
 void ProcessIncoming(unsigned long long socket, char *type,
-                     char *value) {
-  Game currGame = GetGame();
-  if (!HasPlayer(&currGame, socket)) {
+                     char *value)
+{
+  Game *game = GetGame();
+  if (!HasPlayer(socket))
+  {
     if (type != NULL && strcmp("join", type) == 0 && value != NULL &&
-        currGame.playerCount < MAX_PLAYERS) {
-        sprintf(buff,"join;%llu",socket);
-        sendSingle(socket, buff);
-      sprintf_s(
-          buff, 2048,
-          "players;%d,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu,%s,%llu",
-          currGame.playerCount, currGame.players[0].name,
-          currGame.players[0].id, currGame.players[1].name,
-          currGame.players[1].id, currGame.players[2].name,
-          currGame.players[2].id, currGame.players[3].name,
-          currGame.players[3].id, currGame.players[4].name,
-          currGame.players[4].id, currGame.players[5].name,
-          currGame.players[5].id, currGame.players[6].name,
-          currGame.players[6].id);
-      sendSingle(socket, buff);
-      Player *newPlayer = currGame.players + currGame.playerCount++;
-      strncpy_s(newPlayer->name, NAME_LEN, value, NAME_LEN);
-      newPlayer->id = socket;
-      sprintf_s(buff, 2048, "joined;%s,%llu", newPlayer->name, socket);
-      sendAll(buff, socket);
+        game->Players.length < MAX_PLAYERS)
+    {
+      HandleJoin(game, socket, value);
       return;
-    } else {
-      sendSingle(socket, "full");
+    }
+    else
+    {
+      sendSingle(socket, "full\n");
       return;
     }
   }

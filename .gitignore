@@ -3,3 +3,6 @@ buildServer/
 buildWeb/
 nginx docker/html/Poker.js
 nginx docker/html/Poker.wasm
+websockify/
+src/client/resources.c
+src/client/resources.h

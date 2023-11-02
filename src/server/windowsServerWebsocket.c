@@ -3,10 +3,27 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#define SHUTDOWN SD_SEND
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <pthread.h>
+#include <time.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/select.h>
+#include <unistd.h>
+
+#define SHUTDOWN SHUT_WR
+
+typedef unsigned long long SOCKET;
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+
 #endif
 #include "../common/vector/vector.h"
 #include "serverWebsocket.h"
@@ -127,7 +144,11 @@ void createConnection() {
   clientSocket =
       accept(serverSocket, (struct sockaddr *)&clientAddr, &clientAddrLen);
   if (clientSocket == INVALID_SOCKET) {
+    #ifdef _WIN32
     printf("accept failed with error: %d\n", WSAGetLastError());
+    #else
+    printf("accept failed\n");
+    #endif
     close_socket(clientSocket);
     return;
   }
@@ -138,13 +159,13 @@ void createConnection() {
 }
 void clientDisconnect(SOCKET currSocket, int index) {
   printf("connection with socket %llu closing\n", currSocket);
-  int iRes = shutdown(currSocket, SD_SEND);
+  int iRes = shutdown(currSocket, SHUTDOWN);
   if (!socketErrorCheck(iRes, currSocket, "shutdown", 0))
     close_socket(currSocket);
 
   FD_CLR(currSocket, &activeFdSet);
   Vector_RemoveAt(&clients, index, 0);
-  sprintf(recbuff, "USERLEFT;%llu\n", currSocket);
+  sprintf(recbuff, "leave;%llu\n", currSocket);
   sendAll(recbuff, -1);
 }
 void dataReceived(SOCKET currSocket, int index, char *type, char *value) {
@@ -190,7 +211,11 @@ void websocketStart(int port) {
     iRes = recv(currSocket, recbuff, WEBSOCKET_BUFF_LEN, 0);
 
     if (iRes < 0) {
+      #ifdef _WIN32
       printf("recv failed: %d\n", WSAGetLastError());
+      #else
+      printf("recv failed\n");
+      #endif
       close_socket(currSocket);
       FD_CLR(currSocket, &activeFdSet);
       Vector_RemoveAt(&clients, i, 0);
@@ -220,9 +245,10 @@ int socketErrorCheck(int returnValue, SOCKET socketToClose, const char *action,
   const char *actionAttempted = action;
   if (returnValue != SOCKET_ERROR)
     return 0;
-
+#ifdef _WIN32
   printf("socket error. %s failed with error: %d\n", actionAttempted,
          WSAGetLastError());
+         #endif
   close_socket(socketToClose);
 
   if (!critical)

@@ -1,7 +1,7 @@
 ifeq ($(OS),Windows_NT)
 	RMDIR = cmd /b /c rmdir /s /q build buildweb buildserver
 else
-	RMDIR = rm -rf build buildweb buildserver
+	RMDIR = rm -rf build buildWeb buildServer
 endif
 
 .PHONY: all
