@@ -1,6 +1,7 @@
+#include "cards.h"
 #include "raylib.h"
 #include "resources.h"
-#include "cards.h"
+
 /*
 
 const unsigned char* cardData[4][13] = {
@@ -16,7 +17,7 @@ const unsigned char* cardDataLen[4][13] = {
     {spad_2_png_size,spad_3_png_size,spad_4_png_size,spad_5_png_size,spad_6_png_size,spad_7_png_size,spad_8_png_size,spad_9_png_size,spad_10_png_size,spad_jack_png_size,spad_queen_png_size,spad_king_png_size,spad_ace_png_size,},
 };
 
-Texture cardTextures[4][13] = { 
+Texture cardTextures[4][13] = {
     {{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},},
     {{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},},
     {{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1},},
@@ -26,19 +27,21 @@ Texture *GetCardTexture(enum Suit suit,int card)
 {
     if(cardTextures[suit][card].height == -1)
     {
-        Image tmp = LoadImageFromMemory(".png",cardData[suit][card],cardDataLen[suit][card]-1);
+        Image tmp =
+LoadImageFromMemory(".png",cardData[suit][card],cardDataLen[suit][card]-1);
         cardTextures[suit][card] = LoadTextureFromImage(tmp);
         UnloadImage(tmp);
     }
     return &cardTextures[suit][card];
 }
 */
-Texture defaultCard = {-1,0,0,0,0};
-Texture GetCardTexture(enum Suit suit,int card){
-    if(defaultCard.id == -1){
-        Image tmp = LoadImageFromMemory(".png",default_card_png,default_card_png_size-1);
-        defaultCard = LoadTextureFromImage(tmp);
-        UnloadImage(tmp);
-    }
-    return defaultCard;
+Texture defaultCard = {-1, 0, 0, 0, 0};
+Texture GetCardTexture(enum Suit suit, int card) {
+  if (defaultCard.id == -1) {
+    Image tmp = LoadImageFromMemory(".png", default_card_png,
+                                    default_card_png_size - 1);
+    defaultCard = LoadTextureFromImage(tmp);
+    UnloadImage(tmp);
+  }
+  return defaultCard;
 }

@@ -8,6 +8,9 @@ typedef struct player_struct {
   char name[NAME_LEN];
   unsigned long long id;
   unsigned long bet;
+  unsigned long money;
+  int folded;
+  int dealer;
   Card cards[HAND_SIZE];
 } Player;
 

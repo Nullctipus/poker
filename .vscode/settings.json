@@ -39,6 +39,12 @@
         "ratio": "c",
         "system_error": "c",
         "any": "c",
-        "variant": "c"
-    }
+        "variant": "c",
+        "vector.h": "c",
+        "hands.h": "c"
+    },
+    "clangd.fallbackFlags": [
+        "-I${workspaceFolder}/build/_deps/raylib-build/raylib/include",
+    ],
+    "editor.formatOnSave": true,
 }

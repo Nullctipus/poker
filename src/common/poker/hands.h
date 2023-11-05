@@ -27,4 +27,3 @@ void swap_cards(Card *a, Card *b);
 Hand create_hand(Card *cards);
 const char *type_string(enum hand_type type);
 int hand_compare(Hand *left, Hand *right);
-

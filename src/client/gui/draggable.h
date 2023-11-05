@@ -2,9 +2,9 @@
 
 #include "raylib.h"
 
-typedef struct draggable_struct{
-    float offsetX,offsetY;
-    int dragging;
+typedef struct draggable_struct {
+  float offsetX, offsetY;
+  int dragging;
 } Draggable;
 
-void update_Draggable(Draggable* draggable, Rectangle *toDrag);
+void update_Draggable(Draggable *draggable, Rectangle *toDrag);

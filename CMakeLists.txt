@@ -4,6 +4,7 @@ project(Poker)
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 # https://stackoverflow.com/questions/11813271/embed-resources-eg-shader-code-images-into-executable-library-with-cmake
 # Creates C resources file from files in given directory
