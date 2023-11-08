@@ -4,12 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define DEFAULT_MONEY 1000
 Game game;
 
 Game *create_game() {
   memset(&game, 0, sizeof(game));
   game.Players = Vector_Create(sizeof(Player));
   Vector_Reserve(&game.Players, MAX_PLAYERS);
+  memset(game.Players.pData, 0, sizeof(Player) * MAX_PLAYERS);
   return &game;
 }
 int HasPlayer(unsigned long long player) {
@@ -48,8 +50,10 @@ void RemovePlayer(unsigned long long player) {
   Vector_RemoveAt(&(game.Players), GetPlayerIndex(player), 0);
 }
 Player *AddPlayer(unsigned long long player, char *name) {
-  Player *newPlayer = GetPlayerAt(game.Players.length);
+  Player *newPlayer = GetPlayerAt((int)game.Players.length);
   memset(newPlayer, 0, sizeof(player));
+  memset(newPlayer->cards, -1, sizeof(Card) * HAND_SIZE);
+  newPlayer->money = DEFAULT_MONEY;
   game.Players.length++;
   strncpy(newPlayer->name, name, NAME_LEN);
   newPlayer->name[NAME_LEN - 1] = '\0';

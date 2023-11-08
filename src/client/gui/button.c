@@ -10,7 +10,8 @@ Button *create_Button(Rectangle rect, Rectangle *parent, char *text) {
   ret->parent = parent;
   ret->rect = rect;
   ret->text = text;
-  ret->textOffset = (rect.width - MeasureText(text, BUTTON_TEXT_SIZE)) / 2;
+  ret->textOffset =
+      (int)((rect.width - MeasureText(text, BUTTON_TEXT_SIZE)) / 2.0);
   ret->hovered = 0;
   return ret;
 }

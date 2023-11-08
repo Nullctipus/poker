@@ -45,6 +45,7 @@
     },
     "clangd.fallbackFlags": [
         "-I${workspaceFolder}/build/_deps/raylib-build/raylib/include",
+        "-D_CRT_SECURE_NO_WARNINGS"
     ],
     "editor.formatOnSave": true,
 }

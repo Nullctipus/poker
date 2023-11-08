@@ -23,6 +23,9 @@
   CLITERAL(Color) { 255, 255, 255, 255 }
 #define TEXTBOX_BORDER_WIDTH 2
 
+#define TEXT_COLOR                                                             \
+  CLITERAL(Color) { 128, 0, 255, 255 }
+
 #define TEXT_SIZE 30
 #define TITLE_SIZE 20
 #define BUTTON_TEXT_SIZE TITLE_SIZE
@@ -30,3 +33,12 @@
 #define WINDOW_TITLE "Poker"
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
+
+#define CARD_WIDTH 1024
+#define CARD_HEIGHT 1228
+#define CARD_HIGHLIGHT                                                         \
+  CLITERAL(Color) { 255, 0, 255, 255 }
+#define CARD_HIGHLIGHT_THICKNESS 4
+#define CARD_DISCARD                                                           \
+  CLITERAL(Color) { 255, 0, 0, 255 }
+#define CARD_DISCARD_THICKNESS 10

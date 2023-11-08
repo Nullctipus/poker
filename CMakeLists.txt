@@ -13,7 +13,7 @@ function(create_resources dir output)
     
     string(REGEX MATCH "([^/]+)$" header ${output})
     file(WRITE ${output}.h "#ifndef EMBED_RESOURCES_H\n#define EMBED_RESOURCES_H\n\n")
-    file(WRITE ${output}.c "#include \"""${header}.h""\""\n)
+    file(WRITE ${output}.c "#include \"" "${header}.h" "\"" \n)
     # Collect input files
     file(GLOB bins ${dir}/*)
     # Iterate through input files

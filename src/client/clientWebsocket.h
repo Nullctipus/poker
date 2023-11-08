@@ -4,7 +4,7 @@
 int websocketInitialize();
 int websocketCleanup();
 int websocketConnect(char* address, char* port);
-void websocketSend(char* data);
+void websocketSend(const char* data);
 void registerDataReceived(void (*callback)(char*,char*));
 
 #endif

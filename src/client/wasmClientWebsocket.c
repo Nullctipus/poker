@@ -85,10 +85,10 @@ int websocketConnect(char *address, char *port) {
   emscripten_websocket_set_onmessage_callback(ws, NULL, onmessage);
   return 0;
 }
-void websocketSend(char *data) {
+void websocketSend(const char *data) {
 
   EMSCRIPTEN_RESULT result;
-  result = emscripten_websocket_send_binary(server, data,
+  result = emscripten_websocket_send_binary(server, (void *)data,
                                             strlen(data) * sizeof(char));
   if (result) {
     printf("Failed to emscripten_websocket_send_binary(): %d\n", result);

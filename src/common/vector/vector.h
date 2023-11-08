@@ -29,7 +29,7 @@ void *Vector_At(Vector *vector, unsigned long long index);
  * @param vector Vector to manipulate
  * @param element Element to append
  */
-void *Vector_PushBack(Vector *vector, void *element);
+void *Vector_PushBack(Vector *vector, const void *element);
 /*
  * @breif Remove the last element in vector
  * @param vector Vector to manipulate
@@ -76,4 +76,5 @@ void Vector_Clear(Vector *vector);
  * @param index Index to insert to
  * @param element Element to insert
  */
-void Vector_Insert(Vector *vector, unsigned long long index, void *element);
+void Vector_Insert(Vector *vector, unsigned long long index,
+                   const void *element);

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 Queue Queue_Create(size_t elementSize) {
   Queue ret;
   ret.head = 0;
@@ -39,7 +38,7 @@ void Queue_Reserve(Queue *queue, size_t size) {
   queue->base_vector.capacity = size;
 }
 
-void Queue_Enqueue(Queue *queue, void *element) {
+void Queue_Enqueue(Queue *queue, const void *element) {
   if (queue->base_vector.length >= queue->base_vector.capacity) {
     Queue_Reserve(queue, queue->base_vector.capacity * 2);
   }

@@ -22,7 +22,6 @@
 #include <time.h>
 #include <unistd.h>
 
-
 typedef unsigned long long SOCKET;
 
 #define INVALID_SOCKET -1
@@ -110,7 +109,7 @@ int msleep(long msec) {
   return res;
 }
 #endif
-void websocketSend(char *data) { Queue_Enqueue(&sendQueue, data); }
+void websocketSend(const char *data) { Queue_Enqueue(&sendQueue, data); }
 
 #if _WIN32
 DWORD WINAPI
@@ -131,7 +130,7 @@ sendLoop(void *data) {
 
     char *data = Queue_Next(&sendQueue);
 
-    iRes = send(serverSocket, data, strlen(data), 0);
+    iRes = send(serverSocket, data, (int)strlen(data), 0);
     if (socketErrorCheck(iRes, serverSocket, "send", 1))
       break;
   }
@@ -190,7 +189,7 @@ int websocketConnect(char *address, char *port) {
 
   serverSocket =
       socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-  if (socketErrorCheck(serverSocket, serverSocket, "socket", 1))
+  if (socketErrorCheck((int)serverSocket, serverSocket, "socket", 1))
     return 1;
 
   struct addrinfo *p;
@@ -202,7 +201,7 @@ int websocketConnect(char *address, char *port) {
       continue;
     }
 
-    if (connect(serverSocket, p->ai_addr, p->ai_addrlen) == -1) {
+    if (connect(serverSocket, p->ai_addr, (int)p->ai_addrlen) == -1) {
       close_socket(serverSocket);
       perror("client: connect");
       continue;

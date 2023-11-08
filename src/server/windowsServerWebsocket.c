@@ -15,7 +15,6 @@
 #include <time.h>
 #include <unistd.h>
 
-
 #define SHUTDOWN SHUT_WR
 
 typedef unsigned long long SOCKET;
@@ -127,14 +126,32 @@ void sendAll(char *data, SOCKET exclude) {
     SOCKET sock = *(SOCKET *)Vector_At(&clients, j);
     if (sock == serverSocket || sock == exclude)
       continue;
-    int iRes = send(sock, data, buffsize, 0);
+    int iRes = send(sock, data, (int)buffsize + 1, 0);
+    if (socketErrorCheck(iRes, sock, "send", 0)) {
+      Vector_RemoveAt(&clients, j, 0);
+    }
+  }
+}
+
+void sendAllBin(char *data, SOCKET exclude, int buffsize) {
+
+  for (int j = 0; j < clients.length; j++) {
+    SOCKET sock = *(SOCKET *)Vector_At(&clients, j);
+    if (sock == serverSocket || sock == exclude)
+      continue;
+    int iRes = send(sock, data, (int)buffsize + 1, 0);
     if (socketErrorCheck(iRes, sock, "send", 0)) {
       Vector_RemoveAt(&clients, j, 0);
     }
   }
 }
 void sendSingle(SOCKET user, char *data) {
-  int iRes = send(user, data, strlen(data), 0);
+  int iRes = send(user, data, (int)strlen(data) + 1, 0);
+  socketErrorCheck(iRes, user, "send", 0);
+}
+
+void sendSingleBin(SOCKET user, char *data, int length) {
+  int iRes = send(user, data, length + 1, 0);
   socketErrorCheck(iRes, user, "send", 0);
 }
 void createConnection() {
@@ -163,6 +180,7 @@ void clientDisconnect(SOCKET currSocket, int index) {
 
   FD_CLR(currSocket, &activeFdSet);
   Vector_RemoveAt(&clients, index, 0);
+  disconnectCallback(currSocket);
   sprintf(recbuff, "leave;%llu\n", currSocket);
   sendAll(recbuff, -1);
 }
@@ -214,9 +232,7 @@ void websocketStart(int port) {
 #else
       printf("recv failed\n");
 #endif
-      close_socket(currSocket);
-      FD_CLR(currSocket, &activeFdSet);
-      Vector_RemoveAt(&clients, i, 0);
+      clientDisconnect(currSocket, i);
       continue;
     }
     if (iRes == 0) {

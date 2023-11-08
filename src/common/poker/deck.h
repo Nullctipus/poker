@@ -12,3 +12,5 @@ typedef struct deck_struct {
 Deck *create_deck();
 
 void remove_from_deck(Deck *deck, int index);
+Card deck_nextCard(Deck *deck);
+void reset_deck(Deck *deck);

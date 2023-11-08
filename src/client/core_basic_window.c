@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
 #endif
@@ -49,7 +48,7 @@ char buff[2048] = "localhost";
 char *port = NULL;
 TextBox *textBox = NULL;
 
-Texture2D texture;
+Texture2D texture = {-1};
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -63,6 +62,7 @@ int createWindow() {
   // Initialization
   //--------------------------------------------------------------------------------------
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(screenWidth, screenHeight, WINDOW_TITLE);
   StartClient();
   StartRender();
@@ -104,8 +104,8 @@ void InitializeConnection() {
   Rectangle r;
   r.width = 500;
   r.height = 300;
-  r.x = DEFAULT_WINDOW_WIDTH / 2 - r.width / 2;
-  r.y = DEFAULT_WINDOW_HEIGHT / 2 - r.height / 2;
+  r.x = (int)(DEFAULT_WINDOW_WIDTH / 2) - r.width / 2;
+  r.y = (int)(DEFAULT_WINDOW_HEIGHT / 2) - r.height / 2;
   strcpy(buff, "localhost");
   textBox = create_TextBox(r, "Host", buff, 32, 1);
 }
@@ -114,6 +114,8 @@ void UpdateScale() {
     screenWidth = GetRenderWidth();
     screenHeight = GetRenderHeight();
     Image imBlank = GenImageColor(screenWidth, screenHeight, WHITE);
+    if (texture.id != -1)
+      UnloadTexture(texture);
     texture =
         LoadTextureFromImage(imBlank); // Load blank texture to fill on shader
     UnloadImage(imBlank);
@@ -155,6 +157,7 @@ void UpdateDrawFrame(void) {
   } else if (textBox != NULL) {
     if (res == SUBMIT) {
       websocketSend(buff);
+      destroy_TextBox(&textBox);
     }
   } else {
     UpdateRender();
@@ -165,26 +168,27 @@ void UpdateDrawFrame(void) {
   // Draw
   //----------------------------------------------------------------------------------
   BeginDrawing();
-  ClearBackground(RAYWHITE);
+  ClearBackground(BLACK);
 
   /*BeginShaderMode(testShader);
     DrawTextureRec(texture,(Rectangle){0,0,screenWidth,screenHeight},(Vector2){0,0},WHITE);
   EndShaderMode();*/
-  Texture tmp = GetCardTexture(0, 0);
-  float scale = (screenHeight / 4) / (float)tmp.height;
-  if ((screenWidth / 13) / (float)tmp.width < scale)
-    scale = (screenWidth / 13) / (float)tmp.width;
 
-  for (int suit = 0; suit < 4; suit++)
-    for (int card = 0; card < 13; card++) {
-      DrawTextureEx(
-          GetCardTexture(suit, card),
-          (Vector2){card * scale * tmp.width, suit * scale * tmp.height}, 0,
-          scale, WHITE);
-    }
-  if (textBox != NULL)
+  if (textBox != NULL) {
+    Texture tmp = GetCardTexture(0, 0);
+    float scale = (int)(screenHeight / 4) / (float)tmp.height;
+    if ((int)(screenWidth / 13) / (float)tmp.width < scale)
+      scale = (int)(screenWidth / 13) / (float)tmp.width;
+
+    for (int suit = 0; suit < 4; suit++)
+      for (int card = 0; card < 13; card++) {
+        DrawTextureEx(
+            GetCardTexture(suit, card),
+            (Vector2){card * scale * tmp.width, suit * scale * tmp.height}, 0,
+            scale, WHITE);
+      }
     draw_TextBox(textBox);
-  else
+  } else
     DrawRender();
   DrawFPS(10, 10);
   EndDrawing();

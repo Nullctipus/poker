@@ -9,7 +9,7 @@ typedef struct queue_struct {
 
 Queue Queue_Create(size_t elementSize);
 void Queue_Reserve(Queue *queue, size_t size);
-void Queue_Enqueue(Queue *queue, void* element);
+void Queue_Enqueue(Queue *queue, const void* element);
 
 void* Queue_Next(Queue *queue);
 void* Queue_Peek(Queue *queue,int index);

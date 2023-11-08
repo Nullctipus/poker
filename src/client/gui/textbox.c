@@ -6,7 +6,6 @@
 #include "gui.h"
 #include "raylib.h"
 
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,7 +16,7 @@ TextBox *create_TextBox(Rectangle backgroundRect, char *title, char *text,
   strncpy(ret->title, title, TEXT_BOX_TITLE_LENGTH + 1);
   ret->title[TEXT_BOX_TITLE_LENGTH] = 0;
   ret->textMaxLength = textMaxLength;
-  ret->textLength = strlen(text);
+  ret->textLength = (int)strlen(text);
   ret->text = text;
   ret->draggable = draggable;
   Rectangle buttonRect;
@@ -36,7 +35,7 @@ TextBox *create_TextBox(Rectangle backgroundRect, char *title, char *text,
   ret->textRect.y = 30;
 
   int textWidth = MeasureText(title, TITLE_SIZE);
-  ret->titleOffset = (backgroundRect.width - textWidth) / 2;
+  ret->titleOffset = (int)((backgroundRect.width - textWidth) / 2.0);
 
   if (draggable)
     memset(&ret->drag, 0, sizeof(ret->drag));
@@ -63,7 +62,7 @@ enum textbox_button update_TextBox(TextBox *textBox) {
     SetMouseCursor(MOUSE_CURSOR_IBEAM);
     int key = GetCharPressed();
     while (key > 0) {
-      if ((key >= 32) && (key <= 125) &&
+      if ((key >= 32) && (key <= 125) && key != ',' &&
           (textBox->textLength < textBox->textMaxLength)) {
         textBox->text[textBox->textLength] = (char)key;
         textBox->text[textBox->textLength + 1] =

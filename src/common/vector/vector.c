@@ -28,7 +28,7 @@ Vector Vector_Copy(Vector *vector) {
 void *Vector_At(Vector *vector, unsigned long long index) {
   return ((char *)vector->pData) + vector->elementSize * index;
 }
-void *Vector_PushBack(Vector *vector, void *element) {
+void *Vector_PushBack(Vector *vector, const void *element) {
   if (vector->length >= vector->capacity) {
     Vector_Reserve(vector, vector->capacity * 2);
   }
@@ -69,7 +69,7 @@ void Vector_Reserve(Vector *vector, size_t size) {
   vector->capacity = size;
 }
 void Vector_ReserveNearest(Vector *vector, size_t size) {
-  size = (size_t)NextPowerOf2(size);
+  size = (size_t)NextPowerOf2((unsigned int)size);
   Vector_Reserve(vector, size);
 }
 void Vector_Reduce(Vector *vector) { Vector_Reserve(vector, vector->length); }
@@ -77,7 +77,8 @@ void Vector_Clear(Vector *vector) {
   vector->length = 0;
   Vector_Reserve(vector, 2);
 }
-void Vector_Insert(Vector *vector, unsigned long long index, void *element) {
+void Vector_Insert(Vector *vector, unsigned long long index,
+                   const void *element) {
   if (vector->length == index) {
     Vector_PushBack(vector, element);
     return;
