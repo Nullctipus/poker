@@ -15,7 +15,7 @@ function(create_resources dir output)
     file(WRITE ${output}.h "#ifndef EMBED_RESOURCES_H\n#define EMBED_RESOURCES_H\n\n")
     file(WRITE ${output}.c "#include \"" "${header}.h" "\"" \n)
     # Collect input files
-    file(GLOB bins ${dir}/*)
+    file(GLOB_RECURSE bins ${dir}/*)
     # Iterate through input files
     foreach(bin ${bins})
         # Get short filename
@@ -52,7 +52,9 @@ if(NOT DEFINED SERVER)
       add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
     endif()
   endif()
-  create_resources("resources/" "src/client/resources")
+  if(DEFINED MAKERESOURCES)
+    create_resources("resources/" "src/client/resources")
+  endif()
 endif()
 # Our Project
 

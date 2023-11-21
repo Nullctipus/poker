@@ -63,6 +63,19 @@ void DrawPlayers() {
     DrawText(renderbuff, (int)(pos.x * dimensions.x),
              (int)((pos.y * dimensions.y) + TEXT_SIZE * scale),
              (int)(TEXT_SIZE * scale), TEXT_COLOR);
+
+    Texture cardback = GetCardBack();
+    float scalec = (int)((334 * scale) / HAND_SIZE) / (float)cardback.width;
+    for (int j = 0; j < HAND_SIZE; j++) {
+      Texture tmp = cardback;
+      if (GetShowingHands())
+        tmp = GetCardTexture(player->cards[j].suit, player->cards[j].cardNum);
+      DrawTextureEx(tmp,
+                    (Vector2){pos.x * dimensions.x + j * CARD_WIDTH * scalec +
+                                  j * 25 * scalec,
+                              pos.y * dimensions.y + TEXT_SIZE * 2 * scale},
+                    0, scalec, WHITE);
+    }
   }
 }
 int discarding[MAX_DISCARD];
@@ -148,7 +161,7 @@ void DrawBet() {
            betbuff);
   if (im_button((Rectangle){centerbutton.x, centerbutton.y - 35, 50, 30},
                 "-")) {
-    raiseAmount = max(raiseAmount - 10, 0);
+    raiseAmount = (((raiseAmount - 10) > (0)) ? (raiseAmount - 10) : (0));
   }
   if (im_button((Rectangle){centerbutton.x + 150, centerbutton.y - 35, 50, 30},
                 "+")) {
@@ -173,6 +186,8 @@ void DrawDiscard() {
 
   if (!ready && im_button(centerbutton, "Ready")) {
     DiscardHand(discarding[0], discarding[1], discarding[2]);
+
+    memset(&discarding, -1, sizeof(discarding));
     ready = 1;
   }
 }
@@ -183,13 +198,14 @@ void DrawRender() {
     DrawReady();
     break;
   case 0:
+  case 2:
     DrawBet();
     break;
   case 1:
     DrawDiscard();
     break;
-  case 2:
-    DrawBet();
+  case 3:
+    // draw results
     break;
   }
 }

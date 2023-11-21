@@ -17,6 +17,7 @@ int myTurn = 0;
 char *clientBuff;
 int currentRound = -1;
 int minBet = 0;
+int showingCards = 0;
 
 void StartClient() {
   memset(&localPlayer, 0, sizeof(localPlayer));
@@ -56,12 +57,16 @@ void ProcessPlayers(char *value) {
   }
 }
 void NextTurn(char *value) {
+  showingCards = 0;
   myTurn = *(unsigned long long *)value == localPlayer.id;
+  printf("is turn %d (%llu == %llu)\n", myTurn, *(unsigned long long *)value,
+         localPlayer.id);
 }
 void ProcessRound(char *value) {
   unsigned long long nextPlayer;
-  sscanf(value, "%d,%llu", &currentRound, &nextPlayer);
+  sscanf(value, "%d;%llu", &currentRound, &nextPlayer);
   myTurn = nextPlayer == localPlayer.id;
+  printf("is turn %d (%llu == %llu)", myTurn, nextPlayer, localPlayer.id);
   NextRound();
 }
 void ProcessHand(char *value) {
@@ -83,6 +88,62 @@ void ProcessBet(char *value) {
   else
     GetPlayer(player)->bet = bet;
   minBet = bet;
+}
+void ProcessAllCards(char *data) {
+  unsigned long long length;
+  unsigned long long id;
+  memcpy(&length, data, sizeof(length));
+  printf("length: %llu (%llu)\n", length, sizeof(length));
+  data += sizeof(length);
+  for (int i = 0; i < length; i++) {
+
+    memcpy(&id, data, sizeof(id));
+    printf("id: %llu (%llu)\n", id, sizeof(id));
+    Player *curr;
+    if (localPlayer.id == id)
+      curr = &localPlayer;
+    else
+      curr = GetPlayer(id);
+    data += sizeof(id);
+
+    memcpy(curr->cards, data, sizeof(curr->cards));
+    printf("cards %llu\n", sizeof(curr->cards));
+    data += sizeof(curr->cards);
+    printf("Hand: %llu (%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d)\n", curr->id,
+           curr->cards[0].suit, curr->cards[0].cardNum, curr->cards[1].suit,
+           curr->cards[1].cardNum, curr->cards[2].suit, curr->cards[2].cardNum,
+           curr->cards[3].suit, curr->cards[3].cardNum, curr->cards[4].suit,
+           curr->cards[4].cardNum);
+  }
+  showingCards = 1;
+}
+void ProcessMoney(char *data) {
+
+  Game *game = GetGame();
+  minBet = 0;
+  unsigned long long length;
+  unsigned long long id;
+  memcpy(&length, data, sizeof(length));
+  printf("length %llu (%llu)\n", length, sizeof(length));
+  data += sizeof(length);
+
+  for (int i = 0; i < length; i++) {
+
+    memcpy(&id, data, sizeof(id));
+    printf("id: %llu (%llu)\n", id, sizeof(id));
+    data += sizeof(id);
+
+    Player *curr;
+    if (localPlayer.id == id)
+      curr = &localPlayer;
+    else
+      curr = GetPlayer(id);
+    curr->bet = 0;
+
+    printf("money: %lu (%llu)\n", curr->money, sizeof(curr->money));
+    memcpy(&curr->money, data, sizeof(curr->money));
+    data += sizeof(curr->money);
+  }
 }
 void ProcessData(char *type, char *value) {
   if (strcmp(type, "leave") == 0) {
@@ -116,6 +177,12 @@ void ProcessData(char *type, char *value) {
   if (strcmp(type, "round") == 0) {
     ProcessRound(value);
   }
+  if (strcmp(type, "showhand") == 0) {
+    ProcessAllCards(type + 10);
+  }
+  if (strcmp(type, "money") == 0) {
+    ProcessMoney(type + 8);
+  }
 }
 
 void DiscardHand(int c1, int c2, int c3) {
@@ -135,3 +202,4 @@ int isTurn() { return myTurn; }
 Hand *CurrentHand() { return &currentHand; }
 Player *GetLocalPlayer() { return &localPlayer; }
 int GetMinBet() { return minBet; }
+int GetShowingHands() { return showingCards; }

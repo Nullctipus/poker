@@ -36,14 +36,7 @@ void *Vector_PushBack(Vector *vector, const void *element) {
          vector->elementSize);
   return (char *)vector->pData + (vector->length++) * vector->elementSize;
 }
-void Vector_Pop(Vector *vector) {
-  --vector->length;
-  if (vector->length < vector->capacity / 2) {
-    vector->capacity /= 2;
-    vector->pData =
-        realloc(vector->pData, vector->capacity * vector->elementSize);
-  }
-}
+void Vector_Pop(Vector *vector) { --vector->length; }
 void Vector_Dispose(Vector *vector) { free(vector->pData); }
 void Vector_RemoveAt(Vector *vector, unsigned long long index, int bOrdered) {
   if (index + 1 == vector->length) {

@@ -8,6 +8,11 @@ endif
 
 all: desktop server web
 
+genSources:
+	@echo "Generating Build Files..."
+	[ -d build ] || mkdir build
+	cd build && cmake -DCMAKE_BUILD_TYPE=Release .. -DMAKERESOURCES=1
+
 server:
 	[ -d buildServer ] || mkdir buildServer
 	cd buildServer && cmake .. -DSERVER=1 -DCMAKE_BUILD_TYPE=Release

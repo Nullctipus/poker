@@ -66,7 +66,7 @@ void setType(Hand *hand) {
     kinds[hand->cards[i].cardNum]++;
 
   int largest = 0, slargest = 0;
-  for (i = 0; i < KINDS_LEN; i++) {
+  for (i = KINDS_LEN - 1; i >= 0; i--) {
     if (kinds[i] > kinds[largest]) {
       largest = i;
       continue;
@@ -89,8 +89,8 @@ void setType(Hand *hand) {
       hand->length = 5;
       return;
     }
-    hand->type = FOUR_OF_A_KIND;
-    hand->length = 4;
+    hand->type = THREE_OF_A_KIND;
+    hand->length = 3;
     return;
   }
   if (kinds[largest] == 2) {

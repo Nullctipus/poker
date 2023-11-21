@@ -15,3 +15,4 @@ int getCurrentRound();
 Hand *CurrentHand();
 Player *GetLocalPlayer();
 int GetMinBet();
+int GetShowingHands();

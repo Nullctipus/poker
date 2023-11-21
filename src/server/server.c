@@ -10,6 +10,14 @@
 
 #include "serverWebsocket.h"
 
+#if _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <time.h>
+#include <unistd.h>
+#endif
+
 void InitServer() { create_game(); }
 
 void SendHand(Game *game, unsigned long long socket);
@@ -24,6 +32,22 @@ int currentRound = 0;
 #define BETTING_ROUND_1 0
 #define BETTING_ROUND_2 2
 #define REVEAL_ROUND 3
+
+#if !_WIN32
+int msleep(long msec) {
+  struct timespec ts;
+  int res;
+
+  ts.tv_sec = msec / 1000;
+  ts.tv_nsec = (msec % 1000) * 1000000;
+
+  do {
+    res = nanosleep(&ts, &ts);
+  } while (res);
+
+  return res;
+}
+#endif
 
 void NextGame() {
   Game *game = GetGame();
@@ -40,18 +64,89 @@ void NextGame() {
       break;
     }
   }
-  sprintf(clientBuff, "start;%llu", dealer->id);
-  sendAll(clientBuff, 0);
+  strcpy(clientBuff, "start;");
+  memcpy(clientBuff + 8, &dealer->id, sizeof(unsigned long long));
+  sendAllBin(clientBuff, 0, 8 + sizeof(unsigned long long));
   for (int i = 0; i < game->Players.length; i++) {
     SendHand(game, GetPlayerAt(i)->id);
   }
 }
+void SendAllCards() {
+  printf("Revealing Card\n");
+  Game *game = GetGame();
+  char *buff = clientBuff;
+  sprintf(clientBuff, "showhand;");
+  unsigned long long length = 10;
+  memcpy(buff + length, &game->Players.length, sizeof(game->Players.length));
+
+  printf("length: %llu (%llu)\n", game->Players.length,
+         sizeof(game->Players.length));
+  length += sizeof(game->Players.length);
+  for (int i = 0; i < game->Players.length; i++) {
+
+    Player *curr = GetPlayerAt(i);
+    memcpy(buff + length, &curr->id, sizeof(curr->id));
+
+    printf("id: %llu (%llu)\n", curr->id, sizeof(curr->id));
+    length += sizeof(curr->id);
+
+    memcpy(buff + length, curr->cards, sizeof(curr->cards));
+    printf("cards %llu\n", sizeof(curr->cards));
+    length += sizeof(curr->cards);
+  }
+  printf("%s (%llu)", clientBuff, length);
+  sendAllBin(buff, -1, length);
+}
+unsigned long long UpdateWinner() {
+  int winnings = 0;
+  Game *game = GetGame();
+  Player *winner = GetPlayerAt(0);
+  Player *curr;
+  for (int i = 0; i < game->Players.length; i++) {
+    curr = GetPlayerAt(i);
+    winnings += curr->bet;
+
+    Hand left = create_hand(curr->cards), right = create_hand(winner->cards);
+    if (!hand_compare(&left, &right)) {
+      winner = curr;
+    }
+  }
+  winner->money += winnings;
+  return winner->id;
+}
+void SendMoney() {
+  sprintf(clientBuff, "money;");
+
+  Game *game = GetGame();
+  potPerPlayer = 0;
+
+  int length = 8;
+  memcpy(clientBuff + length, &game->Players.length,
+         sizeof(game->Players.length));
+  printf("length: %llu (%llu)\n", game->Players.length,
+         sizeof(game->Players.length));
+  length += sizeof(game->Players.length);
+  unsigned long long winner = UpdateWinner();
+  for (int i = 0; i < game->Players.length; i++) {
+    Player *curr = GetPlayerAt(i);
+    if (winner != curr->id)
+      curr->money -= curr->bet;
+    curr->bet = 0;
+
+    memcpy(clientBuff + length, &curr->id, sizeof(curr->id));
+    printf("id: %llu (%llu)\n", curr->id, sizeof(curr->id));
+
+    length += sizeof(curr->id);
+
+    memcpy(clientBuff + length, &curr->money, sizeof(curr->money));
+    printf("money: %lu (%llu)\n", curr->money, sizeof(curr->money));
+    length += sizeof(curr->money);
+  }
+  printf("%s", clientBuff);
+  sendAllBin(clientBuff, -1, length);
+}
 void HandleSettled(Game *game, unsigned long long next) {
   currentRound++;
-  if (currentRound == 4) {
-    NextGame();
-    return;
-  }
 
   sprintf(clientBuff, "round;%d;%llu", currentRound, next);
   sendAll(clientBuff, 0);
@@ -65,8 +160,19 @@ void HandleSettled(Game *game, unsigned long long next) {
   case REVEAL_ROUND:
     // reveal cards
     // TODO send cards to every player
+    SendAllCards();
+
     // TODO Decrease bet amount
-    // TODO wait 5 seconds then next game
+    SendMoney();
+
+// TODO wait 5 seconds then next game
+#if _WIN32
+    Sleep(5000);
+#else
+    msleep(5000);
+#endif
+    NextGame();
+
     break;
   }
 }
@@ -127,6 +233,11 @@ void SendHand(Game *game, unsigned long long socket) {
   sprintf(clientBuff, "hand;");
   memcpy(clientBuff + 7, &hand, sizeof(Hand));
   sendSingleBin(socket, clientBuff, strlen(clientBuff) + sizeof(hand));
+  printf("Hand: %s (%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d)\n",
+         type_string(hand.type), hand.cards[0].suit, hand.cards[0].cardNum,
+         hand.cards[1].suit, hand.cards[1].cardNum, hand.cards[2].suit,
+         hand.cards[2].cardNum, hand.cards[3].suit, hand.cards[3].cardNum,
+         hand.cards[4].suit, hand.cards[4].cardNum);
 }
 
 void HandleReady(Game *game, unsigned long long socket) {

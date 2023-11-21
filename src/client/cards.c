@@ -191,15 +191,13 @@ Texture GetCardTexture(enum Suit suit, int card) {
   }
   return cardTextures[suit][card];
 }
-/*
-Texture defaultCard = {-1, 0, 0, 0, 0};
-Texture GetCardTexture(enum Suit suit, int card) {
-  if (defaultCard.id == -1) {
-    Image tmp = LoadImageFromMemory(".png", default_card_png,
-                                    default_card_png_size - 1);
-    defaultCard = LoadTextureFromImage(tmp);
+Texture cardback = {-1};
+Texture GetCardBack() {
+  if (cardback.id == -1) {
+    Image tmp =
+        LoadImageFromMemory(".png", card_back_png, card_back_png_size - 1);
+    cardback = LoadTextureFromImage(tmp);
     UnloadImage(tmp);
   }
-  return defaultCard;
+  return cardback;
 }
-*/
