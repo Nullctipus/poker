@@ -7,6 +7,7 @@
 #include "gui/gui.h"
 #include "pokerConfig.h"
 #include "raylib.h"
+#include "resources.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -46,13 +47,14 @@ void StartRender() {
   cardArea.y = DEFAULT_WINDOW_HEIGHT - 160;
 }
 Vector2 playerpos[MAX_PLAYERS - 1] = {
-    {.5f, 0.0f},      {.0797f, .5681f}, {.8203f, 0.5681f}, {0.6591f, .8855f},
-    {.0033f, .1205f}, {.2409f, .8855f}, {.8967f, 0.1205f}};
+    {.375f, 0.0f},    {.0097f, .350f}, {.7000f, 0.350f}, {0.6591f, .59f},
+    {.0797f, .1205f}, {.0797f, .59},   {.6591f, 0.1205f}};
 
 void DrawPlayers() {
   Game *game = GetGame();
   float scale = getScaler();
   Vector2 dimensions = {(float)GetRenderWidth(), (float)GetRenderHeight()};
+
   for (int i = 0; i < game->Players.length; i++) {
     Player *player = GetPlayerAt(i);
     Vector2 pos = playerpos[i];

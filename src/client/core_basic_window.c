@@ -49,6 +49,7 @@ char *port = NULL;
 TextBox *textBox = NULL;
 
 Texture2D texture = {-1};
+Texture background;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -73,6 +74,11 @@ int createWindow() {
   texture =
       LoadTextureFromImage(imBlank); // Load blank texture to fill on shader
   UnloadImage(imBlank);
+
+  Image tmp =
+      LoadImageFromMemory(".png", background_png, background_png_size - 1);
+  background = LoadTextureFromImage(tmp);
+  UnloadImage(tmp);
 
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -168,8 +174,9 @@ void UpdateDrawFrame(void) {
   // Draw
   //----------------------------------------------------------------------------------
   BeginDrawing();
-  ClearBackground(BLACK);
 
+  float bgscale = GetRenderWidth() / (float)background.width;
+  DrawTextureEx(background, (Vector2){0, 0}, 0, bgscale, WHITE);
   /*BeginShaderMode(testShader);
     DrawTextureRec(texture,(Rectangle){0,0,screenWidth,screenHeight},(Vector2){0,0},WHITE);
   EndShaderMode();*/
